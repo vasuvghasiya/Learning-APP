@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "560624316773",
+    "project_id": "learning-resource-app-c9774",
+    "storage_bucket": "learning-resource-app-c9774.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:560624316773:android:46eeca634a291ed19d718c",
+        "android_client_info": {
+          "package_name": "com.learning.lrapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD99ABAtZcFqd-a2wl-ZLlimgoLRnDaGco"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
