@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_navigation_bar.dart';
-import 'home_dashboard_screen.dart';
+import 'grade_selection_screen.dart';
+import 'subject_list_screen.dart';
 import 'content_screen.dart';
+import 'quiz_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeDashboardScreen(),
+    const GradeSelectionScreen(),
+    const SubjectListScreen(),
     const ContentScreen(),
-    const ContentScreen(),
+    const QuizScreen(),
     const ProfileScreen(),
   ];
 

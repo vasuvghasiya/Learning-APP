@@ -7,39 +7,89 @@ class CustomNavigationBar extends StatelessWidget {
   final Function(int) onTap;
 
   const CustomNavigationBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: onTap,
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Home',
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: onTap,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.video_library_outlined),
-          activeIcon: Icon(Icons.video_library),
-          label: 'Videos',
+        unselectedLabelStyle: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.picture_as_pdf_outlined),
-          activeIcon: Icon(Icons.picture_as_pdf),
-          label: 'PDFs',
+        items: [
+          _buildNavItem(
+            icon: Icons.school,
+            label: 'Grades',
+            isSelected: currentIndex == 0,
+          ),
+          _buildNavItem(
+            icon: Icons.menu_book,
+            label: 'Subjects',
+            isSelected: currentIndex == 1,
+          ),
+          _buildNavItem(
+            icon: Icons.video_library,
+            label: 'Content',
+            isSelected: currentIndex == 2,
+          ),
+          _buildNavItem(
+            icon: Icons.quiz,
+            label: 'Quizzes',
+            isSelected: currentIndex == 3,
+          ),
+          _buildNavItem(
+            icon: Icons.person,
+            label: 'Profile',
+            isSelected: currentIndex == 4,
+          ),
+        ],
+      ),
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+  }) {
+    return BottomNavigationBarItem(
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: 'Profile',
+        child: Icon(
+          icon,
+          size: 24,
         ),
-      ],
+      ),
+      label: label,
     );
   }
 } 

@@ -1,9 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final String url;
@@ -20,121 +16,115 @@ class PdfViewerScreen extends StatefulWidget {
 }
 
 class _PdfViewerScreenState extends State<PdfViewerScreen> {
-  String? _localPath;
+  late PdfViewerController _pdfViewerController;
   bool _isLoading = true;
-  String? _error;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadPdf();
+    _pdfViewerController = PdfViewerController();
   }
 
-  Future<void> _loadPdf() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+  void _retryLoading() {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+  }
 
-      final response = await http.get(Uri.parse(widget.url));
-      if (response.statusCode == 200) {
-        final dir = await getApplicationDocumentsDirectory();
-        final file = File('${dir.path}/${widget.title.replaceAll(' ', '_')}.pdf');
-        await file.writeAsBytes(response.bodyBytes);
-
-        setState(() {
-          _localPath = file.path;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to download PDF';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'Error loading PDF: $e';
-        _isLoading = false;
-      });
-    }
+  @override
+  void dispose() {
+    _pdfViewerController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-        ),
+        title: Text(widget.title),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.zoom_in),
+            onPressed: () {
+              _pdfViewerController.zoomLevel++;
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.zoom_out),
+            onPressed: () {
+              _pdfViewerController.zoomLevel--;
+            },
+          ),
+        ],
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading PDF...'),
-          ],
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Error',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      body: Stack(
+        children: [
+          SfPdfViewer.network(
+            widget.url,
+            controller: _pdfViewerController,
+            onDocumentLoaded: (PdfDocumentLoadedDetails details) {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
+              setState(() {
+                _errorMessage = 'Failed to load PDF. Please check your internet connection and try again.';
+                _isLoading = false;
+              });
+            },
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.white,
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading PDF...'),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              _error!,
-              style: GoogleFonts.poppins(
-                color: Colors.grey[600],
+          if (_errorMessage != null)
+            Container(
+              color: Colors.white,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: _retryLoading,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadPdf,
-              child: Text(
-                'Retry',
-                style: GoogleFonts.poppins(),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return PDFView(
-      filePath: _localPath!,
-      enableSwipe: true,
-      swipeHorizontal: false,
-      autoSpacing: true,
-      pageFling: true,
-      pageSnap: true,
-      fitPolicy: FitPolicy.BOTH,
-      preventLinkNavigation: false,
-      onError: (error) {
-        setState(() {
-          _error = error.toString();
-        });
-      },
+        ],
+      ),
     );
   }
 } 
